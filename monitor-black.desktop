@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Monitor Black
+GenericName=Blank the display
+Comment=Turn the display off now and ignore keyboard and mouse for 10 seconds
+Exec=monitor-black 10
+Icon=video-display
+Terminal=false
+Categories=Utility;System;
+Keywords=screen;display;blank;monitor;off;dpms;
+StartupNotify=false
