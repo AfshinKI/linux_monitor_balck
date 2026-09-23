@@ -57,18 +57,26 @@ fi
 # installations update this shortcut instead of adding duplicates.
 if command -v gsettings >/dev/null 2>&1; then
   python3 - "$BIN_DIR/monitor-black" <<'PY' || echo "Could not set Ctrl+F12 - add it from Settings → Keyboard instead."
-import subprocess, sys
+import ast, subprocess, sys
 
 command = sys.argv[1]
 key = ("org.gnome.settings-daemon.plugins.media-keys", "custom-keybindings")
 path = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/monitor-black/"
 current = subprocess.run(["gsettings", "get", *key], capture_output=True,
                          text=True, check=True).stdout.strip()
-paths = [p.strip().strip("'\"") for p in current.strip("[]").split(",") if p.strip()]
+# An empty GSettings string array is printed as "@as []".  Strip the type
+# annotation before parsing so it never becomes a bogus shortcut path.
+if current.startswith("@as "):
+    current = current[4:]
+try:
+    paths = ast.literal_eval(current)
+except (SyntaxError, ValueError):
+    paths = []
+paths = [p for p in paths if isinstance(p, str) and p.startswith("/")]
 if path not in paths:
     paths.append(path)
-    subprocess.run(["gsettings", "set", *key,
-                    "[" + ", ".join("'%s'" % p for p in paths) + "]"], check=True)
+subprocess.run(["gsettings", "set", *key,
+                "[" + ", ".join("'%s'" % p for p in paths) + "]"], check=True)
 
 schema = "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"
 base = schema + path
