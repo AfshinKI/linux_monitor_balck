@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install monitor-black: binary, desktop entry, and a pin in the GNOME dash.
+# Install monitor-black: binary, desktop entry, dash pin, and Ctrl+F12 shortcut.
 # One-liner:
 #   curl -fsSL https://raw.githubusercontent.com/AfshinKI/linux_monitor_balck/main/install.sh | bash
 set -euo pipefail
@@ -50,6 +50,32 @@ if desktop_id not in favs:
     print("Pinned 'Monitor Black' to the dash.")
 else:
     print("Already pinned to the dash.")
+PY
+fi
+
+# Register Ctrl+F12 as a GNOME custom shortcut.  The fixed path makes repeated
+# installations update this shortcut instead of adding duplicates.
+if command -v gsettings >/dev/null 2>&1; then
+  python3 - "$BIN_DIR/monitor-black" <<'PY' || echo "Could not set Ctrl+F12 - add it from Settings → Keyboard instead."
+import subprocess, sys
+
+command = sys.argv[1]
+key = ("org.gnome.settings-daemon.plugins.media-keys", "custom-keybindings")
+path = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/monitor-black/"
+current = subprocess.run(["gsettings", "get", *key], capture_output=True,
+                         text=True, check=True).stdout.strip()
+paths = [p.strip().strip("'\"") for p in current.strip("[]").split(",") if p.strip()]
+if path not in paths:
+    paths.append(path)
+    subprocess.run(["gsettings", "set", *key,
+                    "[" + ", ".join("'%s'" % p for p in paths) + "]"], check=True)
+
+schema = "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"
+base = schema + path
+subprocess.run(["gsettings", "set", base, "name", "Monitor Black"], check=True)
+subprocess.run(["gsettings", "set", base, "command", command], check=True)
+subprocess.run(["gsettings", "set", base, "binding", "<Control>F12"], check=True)
+print("Set Ctrl+F12 to Monitor Black.")
 PY
 fi
 

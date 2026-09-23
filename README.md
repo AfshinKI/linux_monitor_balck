@@ -14,7 +14,7 @@ curl -fsSL https://raw.githubusercontent.com/AfshinKI/linux_monitor_balck/main/i
 ```
 
 That installs `~/.local/bin/monitor-black`, adds a **Monitor Black** launcher,
-and pins it to the GNOME dash.
+pins it to the GNOME dash, and binds <kbd>Ctrl</kbd>+<kbd>F12</kbd>.
 
 ## Use
 
@@ -30,8 +30,8 @@ After the lockout expires, any key or mouse move wakes the display as usual.
 
 ### Bind it to a key (GNOME)
 
-Settings → Keyboard → Keyboard Shortcuts → Custom Shortcuts → `+`, command
-`monitor-black`, and pick a shortcut such as <kbd>Super</kbd>+<kbd>B</kbd>.
+The installer binds <kbd>Ctrl</kbd>+<kbd>F12</kbd>. To change it, open Settings
+→ Keyboard → Keyboard Shortcuts → Custom Shortcuts and edit **Monitor Black**.
 
 ## How it works
 
